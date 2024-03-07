@@ -293,7 +293,7 @@ def _get_stats(padded, axis, width_pair, length_pair, stat_func):
     return left_stat, right_stat
 
 
-def _set_reflect_both(padded, axis, width_pair, method, include_edge=False):
+def _set_reflect_both(padded, axis, width_pair, original_area_pair, method, include_edge=False):
     """
     Pad `axis` of `arr` with reflection.
 
@@ -319,19 +319,23 @@ def _set_reflect_both(padded, axis, width_pair, method, include_edge=False):
         both 0, padding is done in this dimension.
     """
     left_pad, right_pad = width_pair
-    old_length = padded.shape[axis] - right_pad - left_pad
+    original_area_start, original_area_stop = original_area_pair
+
+    length_left = original_area_stop - left_pad
+    length_right = padded.shape[axis] - original_area_start - right_pad
 
     if include_edge:
         # Edge is included, we need to offset the pad amount by 1
         edge_offset = 1
     else:
         edge_offset = 0  # Edge is not included, no need to offset pad amount
-        old_length -= 1  # but must be omitted from the chunk
+        length_left -= 1  # but must be omitted from the chunk
+        length_right -= 1
 
     if left_pad > 0:
         # Pad with reflected values on left side:
         # First limit chunk size which can't be larger than pad area
-        chunk_length = min(old_length, left_pad)
+        chunk_length = min(length_left, left_pad)
         # Slice right to left, stop on or next to edge, start relative to stop
         stop = left_pad - edge_offset
         start = stop + chunk_length
@@ -354,7 +358,7 @@ def _set_reflect_both(padded, axis, width_pair, method, include_edge=False):
     if right_pad > 0:
         # Pad with reflected values on right side:
         # First limit chunk size which can't be larger than pad area
-        chunk_length = min(old_length, right_pad)
+        chunk_length = min(length_right, right_pad)
         # Slice right to left, start on or next to edge, stop relative to start
         start = -right_pad + edge_offset - 2
         stop = start - chunk_length
@@ -859,12 +863,14 @@ def pad(array, pad_width, mode='constant', **kwargs):
                 continue
 
             roi = _view_roi(padded, original_area_slice, axis)
+            original_area_start = original_area_slice[axis].start
+            original_area_stop = original_area_slice[axis].stop
             while left_index > 0 or right_index > 0:
                 # Iteratively pad until dimension is filled with reflected
                 # values. This is necessary if the pad area is larger than
                 # the length of the original values in the current dimension.
                 left_index, right_index = _set_reflect_both(
-                    roi, axis, (left_index, right_index),
+                    roi, axis, (left_index, right_index), (original_area_start, original_area_stop),
                     method, include_edge
                 )
 
