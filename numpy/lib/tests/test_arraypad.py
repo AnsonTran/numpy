@@ -868,6 +868,10 @@ class TestReflect:
         b = np.array([1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3])
         assert_array_equal(a, b)
 
+    def test_check_04(self):
+        a = np.pad([1, 2, 3], (1, 8), 'reflect')
+        b = np.array([2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3])
+        assert_array_equal(a, b)
 
 class TestEmptyArray:
     """Check how padding behaves on arrays with an empty dimension."""
