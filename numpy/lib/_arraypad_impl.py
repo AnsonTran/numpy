@@ -293,7 +293,8 @@ def _get_stats(padded, axis, width_pair, length_pair, stat_func):
     return left_stat, right_stat
 
 
-def _set_reflect_both(padded, axis, width_pair, original_area_pair, method, include_edge=False):
+def _set_reflect_both(padded, axis, width_pair, original_area_pair, method,
+                      include_edge=False):
     """
     Pad `axis` of `arr` with reflection.
 
@@ -873,7 +874,8 @@ def pad(array, pad_width, mode='constant', **kwargs):
                 # values. This is necessary if the pad area is larger than
                 # the length of the original values in the current dimension.
                 left_index, right_index = _set_reflect_both(
-                    roi, axis, (left_index, right_index), (original_area_start, original_area_stop),
+                    roi, axis, (left_index, right_index),
+                    (original_area_start, original_area_stop),
                     method, include_edge
                 )
 
