@@ -306,6 +306,9 @@ def _set_reflect_both(padded, axis, width_pair, original_area_pair, method, incl
     width_pair : (int, int)
         Pair of widths that mark the pad area on both sides in the given
         dimension.
+    original_area_pair: (int, int)
+        Pair of numbers that mark the start and end of the original array
+        `arr`.
     method : str
         Controls method of reflection; options are 'even' or 'odd'.
     include_edge : bool
